@@ -106,4 +106,35 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const hairShop = "https://hottiehair.com/shop";
+
+  // Find the existing Shop Hair menu link
+  const links = [...document.querySelectorAll("a")];
+  const hairTab = links.find(a =>
+    /^(shop hair|shop hair extensions)$/i.test(
+      a.textContent.trim()
+    )
+  );
+
+  if (!hairTab) return;
+
+  // Rename the existing tab
+  hairTab.textContent = "SHOP HAIR EXTENSIONS";
+  hairTab.href = hairShop;
+
+  // Add new tabs in the same menu
+  const wigsTab = hairTab.cloneNode(true);
+  wigsTab.textContent = "SHOP WIGS";
+  wigsTab.href = "#shop-wigs";
+
+  const customTab = hairTab.cloneNode(true);
+  customTab.textContent = "CUSTOM HAIR EXTENSION COLORS";
+  customTab.href = "#custom-colors";
+
+  hairTab.after(wigsTab, customTab);
+});
+</script>
 </body></html>
