@@ -23,7 +23,31 @@ function addHairBubble(text,mine){const el=document.createElement('div');el.clas
 function quickHair
 if(/book|appointment|availability|schedule|consult/.test(t))return 'I can help you request an appointment with Marisa! 💗 Tell me which service you want, your preferred date and time, and whether you are booking at Hottie Hair or requesting a private consultation. All appointment requests require Marisa’s approval. I cannot submit or confirm bookings yet.';
 (q){openHairChat();sendHairQuestion(q)}
-function sendHairQuestion(q){addHairBubble(q,true);addHairBubble(hairAnswer(q),false)}
+
+async function sendHairQuestion(q){
+  addHairBubble(q,true);
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message:q})
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Lola is unavailable');
+    }
+
+    addHairBubble(data.reply,false);
+
+  } catch(error) {
+    console.error('Lola error:',error);
+    addHairBubble("Oops babe! I'm having a little technical trouble. Please try again in a moment. 💕",false);
+  }
+}
+
 document.getElementById('hairchatForm').addEventListener('submit',function(e){e.preventDefault();const input=document.getElementById('hairchatInput');const q=input.value.trim();if(q){sendHairQuestion(q);input.value=''}});
 </script><div class="embedsocial-hashtag" data-ref="cf12beaee9f17969c96d520def0b8096cb2934cb"></div>
 <script src="https://embedsocial.com/cdn/ht.js"></script>
