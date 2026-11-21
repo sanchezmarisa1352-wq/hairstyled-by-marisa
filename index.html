@@ -69,4 +69,41 @@ document.querySelectorAll('a, button').forEach(el => {
   }
 });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const hairURL = "https://hottiehair.com/shop";
+
+  document.querySelectorAll("a").forEach(function(a) {
+    const label = a.textContent.trim().toLowerCase();
+
+    if (label === "inquire about hair ↗" ||
+        label === "inquire about hair extensions ↗" ||
+        label === "shop hair") {
+      a.textContent = "SHOP HAIR EXTENSIONS ↗";
+      a.href = hairURL;
+    }
+
+    if (label === "inquire about wigs ↗") {
+      a.textContent = "SHOP WIGS ↗";
+    }
+  });
+
+  const menu = document.querySelector(".navlinks");
+  if (menu) {
+    const shopHair = [...menu.querySelectorAll("a")]
+      .find(a => a.textContent.trim().toLowerCase().includes("shop hair"));
+
+    if (shopHair) {
+      shopHair.textContent = "SHOP HAIR EXTENSIONS";
+      shopHair.href = hairURL;
+
+      const wigs = document.createElement("a");
+      wigs.textContent = "SHOP WIGS";
+      wigs.href = "#shop";
+      shopHair.after(wigs);
+    }
+  }
+});
+</script>
 </body></html>
