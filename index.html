@@ -138,46 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-<script>
-(function () {
-  function fixShopMenu() {
-    const links = Array.from(document.querySelectorAll("a"));
 
-    const hairTab = links.find(a =>
-      a.textContent.trim().toUpperCase()
-        .startsWith("SHOP HAIR EXTENSIONS") &&
-      a.closest(".navlinks, .nav, nav")
-    );
 
-    if (!hairTab) return;
 
-    const menu = hairTab.parentElement;
-
-    // Remove any previously added duplicate tabs
-    menu.querySelectorAll("[data-marisa-shop-tab]")
-      .forEach(el => el.remove());
-
-    hairTab.textContent = "SHOP HAIR EXTENSIONS ↗";
-    hairTab.href = "https://hottiehair.com/shop";
-
-    const wigs = hairTab.cloneNode(true);
-    wigs.textContent = "SHOP WIGS";
-    wigs.href = "#shop";
-    wigs.dataset.marisaShopTab = "wigs";
-
-    const custom = hairTab.cloneNode(true);
-    custom.textContent = "CUSTOM HAIR EXTENSION COLORS";
-    custom.href = "#shop";
-    custom.dataset.marisaShopTab = "custom";
-
-    hairTab.after(wigs, custom);
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", fixShopMenu);
-  } else {
-    fixShopMenu();
-  }
-})();
-</script>
 </body></html>
