@@ -43,4 +43,16 @@ document.querySelectorAll('a, button').forEach(el => {
   }
 });
 </script>
+
+<script>
+document.querySelectorAll('a').forEach(link => {
+  if (/shop hair extensions|shop hair/i.test(link.textContent.trim())) {
+    link.href = 'https://hottiehair.com/shop';
+    link.onclick = function(e) {
+      e.preventDefault();
+      window.location.href = 'https://hottiehair.com/shop';
+    };
+  }
+});
+</script>
 </body></html>
