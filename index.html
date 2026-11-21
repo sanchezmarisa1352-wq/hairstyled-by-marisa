@@ -21,4 +21,15 @@ function quickHair(q){openHairChat();sendHairQuestion(q)}
 function sendHairQuestion(q){addHairBubble(q,true);addHairBubble(hairAnswer(q),false)}
 document.getElementById('hairchatForm').addEventListener('submit',function(e){e.preventDefault();const input=document.getElementById('hairchatInput');const q=input.value.trim();if(q){sendHairQuestion(q);input.value=''}});
 </script><div class="embedsocial-hashtag" data-ref="cf12beaee9f17969c96d520def0b8096cb2934cb"></div>
-<script src="https://embedsocial.com/cdn/ht.js"></script></body></html>
+<script src="https://embedsocial.com/cdn/ht.js"></script>
+<script>
+document.querySelectorAll('a, button').forEach(el => {
+  if (el.textContent.trim().toLowerCase().includes('book now')) {
+    el.onclick = function(e) {
+      e.preventDefault();
+      window.location.href = 'https://hottiehair.com/staff/marisa-sanchez';
+    };
+  }
+});
+</script>
+</body></html>
