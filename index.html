@@ -32,4 +32,15 @@ document.querySelectorAll('a, button').forEach(el => {
   }
 });
 </script>
+
+<script>
+document.querySelectorAll('a, button').forEach(el => {
+  if (el.textContent.trim().toLowerCase().includes('shop hair extensions')) {
+    el.onclick = function(e) {
+      e.preventDefault();
+      window.location.href = 'https://hottiehair.com/shop';
+    };
+  }
+});
+</script>
 </body></html>
