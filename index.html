@@ -163,4 +163,26 @@ document.addEventListener("DOMContentLoaded", function () {
   hairTab.after(wigsTab, customTab);
 });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Rename A1 buttons
+  document.querySelectorAll("button, a").forEach(function(el) {
+    if (/ask marisa|a1 assistant|ask a1/i.test(el.textContent)) {
+      el.textContent = "Ask Lola 💋";
+      el.addEventListener("click", function(e) {
+        e.preventDefault();
+        if (typeof window.openHairChat === "function") {
+          window.openHairChat();
+        } else {
+          const chat = document.querySelector(
+            "#hairChat, #hair-chat, .hair-chat"
+          );
+          if (chat) chat.style.display = "block";
+        }
+      });
+    }
+  });
+});
+</script>
 </body></html>
