@@ -185,4 +185,26 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script>
+
+<script>
+window.addEventListener("load", function () {
+  const chat = document.querySelector(
+    "#hairChat, #hair-chat, .hair-chat"
+  );
+
+  if (!chat) return;
+
+  chat.querySelectorAll("button").forEach(function (btn) {
+    const label = btn.textContent.trim();
+
+    if (/^(Extensions|Wigs|Booking|Pricing|Color)$/i.test(label)) {
+      btn.onclick = function () {
+        if (typeof window.sendHairQuestion === "function") {
+          window.sendHairQuestion(label);
+        }
+      };
+    }
+  });
+});
+</script>
 </body></html>
