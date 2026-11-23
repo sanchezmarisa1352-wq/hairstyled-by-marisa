@@ -138,4 +138,18 @@ document.addEventListener("DOMContentLoaded", function () {
   hairTab.after(wigsTab, customTab);
 });
 </script>
-</body></html>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const shopify = "https://r0sktv-ya.myshopify.com";
+
+  document.querySelectorAll("a").forEach(function(link) {
+    const label = link.textContent.trim().toLowerCase();
+
+    if (label.includes("shop wigs") ||
+        label.includes("custom hair extensions") ||
+        label.includes("custom colored hair extensions")) {
+      link.href = shopify;
+    }
+  });
+});
+</script></body></html>
