@@ -152,4 +152,22 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
-</script></body></html>
+</script>
+<script>
+document.addEventListener("click", function(e) {
+  const tab = e.target.closest("a, button");
+  if (!tab) return;
+
+  const name = tab.textContent.trim().toLowerCase();
+
+  if (
+    name === "shop wigs" ||
+    name === "custom hair extension colors"
+  ) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    window.location.href = "https://r0sktv-ya.myshopify.com";
+  }
+}, true);
+</script>
+</body></html>
