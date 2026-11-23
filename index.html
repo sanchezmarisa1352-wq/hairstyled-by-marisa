@@ -170,4 +170,17 @@ document.addEventListener("click", function(e) {
   }
 }, true);
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll("a").forEach(function(link) {
+    const label = link.textContent.trim().toLowerCase();
+
+    if (label.includes("service menu") ||
+        label === "services") {
+      link.href = "service-menu.html";
+    }
+  });
+});
+</script>
 </body></html>
