@@ -1,6 +1,6 @@
 export default async function handler(req,res){
 if(req.method!=="POST")return res.status(405).json({error:"Method not allowed"});
-const token=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;
+const token=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN||req.headers["x-vercel-oidc-token"];
 if(!token){console.error("LOLA_MISSING_KEY");return res.status(503).json({error:"Lola is awaiting AI configuration."});}
 const messages=req.body?.messages;
 if(!Array.isArray(messages)||messages.length>24||messages.some(m=>!m||!["user","assistant"].includes(m.role)||typeof m.content!=="string"||m.content.length>2000))return res.status(400).json({error:"Invalid conversation"});
