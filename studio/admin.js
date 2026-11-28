@@ -120,6 +120,7 @@ async function show(user) {
   else {
     ++loadVersion;
     rows = [];
+    clearPrivateTools();
     $('requests').replaceChildren();
     $('calendar').replaceChildren();
     if (user) message(error ? 'Could not verify admin access.' : 'This account does not have admin access.');
@@ -237,3 +238,94 @@ db.auth.onAuthStateChange((event,session) => {
     setTimeout(() => show(session?.user),0);
   }
 });
+
+let directory = [];
+let directoryVersion = 0;
+function renderClients() {
+  const query = $('client-search').value.trim().toLowerCase();
+  const digits = query.replace(/\D/g, '');
+  const matches = directory.filter(client =>
+    [client.client_name,client.email,client.contact].some(value => value?.toLowerCase().includes(query)) ||
+    (digits.length >= 3 && client.contact?.includes(digits)));
+  $('client-list').replaceChildren(...matches.slice(0, 50).map(client => {
+    const card = document.createElement('article');
+    card.append(node('h3',client.client_name));
+    for (const detail of [client.contact,client.email,client.service]) {
+      if (detail) card.append(node('p',detail));
+    }
+    return card;
+  }));
+  $('client-status').textContent = matches.length > 50
+    ? 'Showing the first 50 clients. Search to narrow the list.'
+    : matches.length ? matches.length + (matches.length === 1 ? ' client' : ' clients') : 'No clients found.';
+}
+$('client-search').oninput = renderClients;
+$('client-directory').ontoggle = async () => {
+  if (!$('client-directory').open || $('dash').hidden) return;
+  const version = ++directoryVersion;
+  $('client-status').textContent = 'Loading clients…';
+  const clients = new Map();
+  const size = 500;
+  for (let offset = 0; ; offset += size) {
+    const {data,error} = await db.from('lola_requests')
+      .select('client_name,contact,email,service')
+      .neq('service','Unavailable')
+      .order('created_at',{ascending:false}).order('id')
+      .range(offset,offset + size - 1);
+    if (version !== directoryVersion || $('dash').hidden) return;
+    if (error) {
+      $('client-status').textContent = 'Could not load clients.';
+      return;
+    }
+    for (const client of data) {
+      const key = client.email?.toLowerCase() || client.contact;
+      if (key && !clients.has(key)) clients.set(key,client);
+    }
+    if (data.length < size) break;
+  }
+  directory = [...clients.values()];
+  renderClients();
+};
+
+let lolaMessages = [];
+let lolaRevision = 0;
+$('admin-lola').onsubmit = async event => {
+  event.preventDefault();
+  const input = event.currentTarget.elements.question;
+  const question = input.value.trim();
+  if (!question) return;
+  const version = ++lolaRevision;
+  const button = event.submitter;
+  const log = $('admin-lola-log');
+  button.disabled = true;
+  input.value = '';
+  log.append(node('p', 'You: ' + question));
+  try {
+    const messages = [...lolaMessages, {role:'user',content:question}].slice(-19);
+    const response = await fetch('/api/lola', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({messages}),
+      signal:AbortSignal.timeout(25000)
+    });
+    if (!response.ok) throw new Error('Lola unavailable');
+    const {reply} = await response.json();
+    if (version !== lolaRevision || $('dash').hidden) return;
+    lolaMessages = [...messages, {role:'assistant',content:reply}];
+    log.append(node('p','Lola: ' + reply));
+  } catch {
+    if (version === lolaRevision) log.append(node('p','Lola is temporarily unavailable.'));
+  } finally {
+    button.disabled = false;
+  }
+};
+function clearPrivateTools() {
+  ++directoryVersion;
+  ++lolaRevision;
+  directory = [];
+  lolaMessages = [];
+  $('client-directory').open = false;
+  $('client-search').value = '';
+  $('client-list').replaceChildren();
+  $('client-status').textContent = '';
+  $('admin-lola').reset();
+  $('admin-lola-log').replaceChildren();
+}

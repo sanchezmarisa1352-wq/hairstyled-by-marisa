@@ -1,0 +1,11 @@
+{
+  "name": "Hairstyled by Marisa Private Studio",
+  "short_name": "Marisa Studio",
+  "id": "/admin.html",
+  "start_url": "/admin.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#140e15",
+  "theme_color": "#140e15",
+  "icons": [{"src":"/studio/admin-icon.png","sizes":"512x512","type":"image/png"}]
+}

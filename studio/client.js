@@ -86,7 +86,7 @@ export function appointmentControls({date, time, form, submit, status, availabil
       form.reset();
       await refresh();
       status.textContent = 'Request received for ' + args.day + ' at ' + displayTime(args.start_time) +
-        ' Pacific. Marisa will review it before your appointment is confirmed.';
+        ' Pacific with Marisa at Hottie Hair, West Charleston. Marisa will review it before your appointment is confirmed.';
       onSuccess?.(status.textContent, id);
     } catch (error) {
       if (error.message.includes('just taken')) await refresh();

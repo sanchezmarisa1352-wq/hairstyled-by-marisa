@@ -11,7 +11,8 @@ panel.className = 'bubble';
 panel.hidden = true;
 panel.style.cssText = 'max-width:100%;width:100%';
 panel.innerHTML = `
-  <strong>Request an appointment</strong>
+  <strong>Request an appointment with Marisa at Hottie Hair</strong>
+  <p>West Charleston · 7871 W. Charleston Blvd, Suite 160, Las Vegas, NV 89117. Prices are estimates and may go up or down after consultation. Marisa will review your final quote before service begins.</p>
   <label>Service <select id="lola-service" required><option value="">Loading services…</option></select></label>
   <label>Date <input id="lola-date" type="date" required></label>
   <label>Start time, Pacific <select id="lola-time" disabled><option value="">Choose a service and date</option></select></label>
@@ -26,6 +27,8 @@ panel.innerHTML = `
   </form>
   <p id="lola-status" role="status"></p>`;
 const area = document.getElementById('chatmessages');
+const greeting = area.querySelector('.bubble');
+if (greeting) greeting.textContent = 'Hi gorgeous! I’m Lola, Marisa’s personal AI assistant. Marisa is a hairstylist at Hottie Hair Salon · West Charleston (West Summerlin) · 7871 W. Charleston Blvd, Suite 160, Las Vegas, NV 89117. I can help with services, price estimates, and appointment requests. What can I help you with?';
 area.append(panel);
 const field = id => panel.querySelector('#lola-' + id);
 const service = field('service');
