@@ -18,7 +18,8 @@ export default async function handler(req,res) {
       typeof m.content !== 'string' || !m.content.trim() || m.content.length > 2000)) {
     return res.status(400).json({error:'Invalid conversation'});
   }
-  const token = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
+  const token = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN ||
+    (process.env.VERCEL === '1' ? req.headers['x-vercel-oidc-token'] : undefined);
   if (!token) return res.status(503).json({error:'Lola is temporarily unavailable.'});
   try {
     const catalogResponse = await fetch(database + '/rest/v1/lola_services?select=name,category,pricing_unit,price_cents&active=eq.true&order=category,name',
