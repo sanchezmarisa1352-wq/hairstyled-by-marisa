@@ -23,7 +23,7 @@ panel.innerHTML = `
     <label>Email <input name="email" type="email" autocomplete="email" required maxlength="254"></label>
     <label>Hair goals <textarea name="goals" rows="2" maxlength="1000"></textarea></label>
     <label><input name="consent" type="checkbox" required> I agree to receive appointment texts.</label>
-    <button id="lola-reserve" disabled>Send appointment request</button>
+    <p><strong>Hottie Hair appointment policy:</strong> Give at least 24 hours’ notice to cancel or reschedule. Late cancellations may cost 50% of the service price, and missed appointments are charged the full service price. Arriving more than 15 minutes late may require rescheduling. <a href="/policies.html">Read the full appointment policies</a> and <a href="https://hottiehair.com/terms">Hottie Hair’s official terms</a>.</p><button id="lola-reserve" disabled>Send appointment request</button>
   </form>
   <p id="lola-status" role="status"></p>`;
 const area = document.getElementById('chatmessages');
