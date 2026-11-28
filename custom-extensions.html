@@ -82,6 +82,12 @@ quote.addEventListener('change', event => {
 });
 let previewUrl;
 if (wig) {
+  const design = new URLSearchParams(location.search).get('design');
+  if (design === 'Pink Leopard') {
+    quote.elements.design.value = 'I’m interested in the 30-inch Pink Leopard wig.';
+    const lengths = quote.querySelector('input[name="length"]').closest('.choices');
+    lengths.insertAdjacentHTML('beforeend', '<label><input type="radio" name="length" value="30" checked required><span>30″</span></label>');
+  }
   guide.hidden = true;
   const thickness = document.getElementById('thickness');
   thickness.hidden = true;
