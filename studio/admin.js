@@ -1,6 +1,7 @@
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm';
 import {database, publishableKey, localDay, localTime, displayTime} from './client.js';
 
+const linkError = new URLSearchParams(location.hash.slice(1)).get('error_code');
 const db = createClient(database, publishableKey);
 const $ = id => document.getElementById(id);
 const message = value => { $('message').textContent = value; };
@@ -123,6 +124,7 @@ async function show(user) {
     $('calendar').replaceChildren();
     if (user) message(error ? 'Could not verify admin access.' : 'This account does not have admin access.');
   }
+  return data === true;
 }
 $('form').onsubmit = async event => {
   event.preventDefault();
@@ -137,10 +139,79 @@ $('magic').onclick = async () => {
     options:{shouldCreateUser:false,emailRedirectTo:location.origin + '/admin.html'}});
   message(error?.message || 'Check your email for a sign-in link.');
 };
+const recovery = node('button', 'Set or reset password');
+recovery.type = 'button';
+$('magic').after(recovery);
+recovery.onclick = async () => {
+  if (!$('email').reportValidity()) return;
+  recovery.disabled = true;
+  try {
+    const {error} = await db.auth.resetPasswordForEmail($('email').value, {
+      redirectTo: location.origin + '/admin.html'
+    });
+    message(error?.message || 'Check your email for a password reset link.');
+  } catch {
+    message('Could not send the email. Try again.');
+  } finally {
+    recovery.disabled = false;
+  }
+};
+
+const passwordSettings = document.createElement('details');
+passwordSettings.append(node('summary', 'Set or change password'));
+const passwordForm = document.createElement('form');
+const [newLabel, newPassword] = control('New password', 'password', '', {
+  autoComplete: 'new-password', minLength: 12
+});
+const [confirmLabel, confirmPassword] = control('Confirm new password', 'password', '', {
+  autoComplete: 'new-password', minLength: 12
+});
+const savePassword = node('button', 'Save password');
+const passwordMessage = node('p', 'Use at least 12 characters.');
+passwordMessage.setAttribute('role', 'status');
+passwordForm.append(newLabel, confirmLabel, savePassword, passwordMessage);
+passwordSettings.append(passwordForm);
+$('logout').after(passwordSettings);
+passwordSettings.addEventListener('toggle', () => {
+  if (!passwordSettings.open) passwordForm.reset();
+});
+passwordForm.onsubmit = async event => {
+  event.preventDefault();
+  if (newPassword.value !== confirmPassword.value) {
+    passwordMessage.textContent = 'The passwords don’t match.';
+    return;
+  }
+  savePassword.disabled = true;
+  try {
+    const {data: isAdmin, error: checkError} = await db.rpc('studio_is_admin');
+    if (checkError || !isAdmin) {
+      passwordMessage.textContent = 'Sign in as the studio admin to set your password.';
+      return;
+    }
+    const {error} = await db.auth.updateUser({password:newPassword.value});
+    if (error) {
+      passwordMessage.textContent = error.message;
+      return;
+    }
+    passwordForm.reset();
+    passwordSettings.open = false;
+    message('Password saved. You can use it the next time you sign in.');
+  } catch {
+    passwordMessage.textContent = 'Could not save your password. Try again.';
+  } finally {
+    savePassword.disabled = false;
+  }
+};
+if (linkError) message('This email link is invalid or expired. Request a fresh link.');
+
 $('logout').onclick = async () => {
   const {error} = await db.auth.signOut();
   message(error?.message || 'Signed out.');
-  if (!error) await show(null);
+  if (!error) {
+    passwordForm.reset();
+    passwordSettings.open = false;
+    await show(null);
+  }
 };
 $('refresh').onclick = load;
 $('back').onclick = () => { month.setUTCMonth(month.getUTCMonth()-1); selected=''; load(); };
@@ -153,6 +224,15 @@ $('block').onsubmit = event => {
   manage({action:'block',day:fields.get('day'),start_time:fields.get('time'),duration:Number(fields.get('duration'))},event.submitter);
 };
 db.auth.onAuthStateChange((event,session) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    setTimeout(async () => {
+      if (await show(session?.user)) {
+        passwordSettings.open = true;
+        newPassword.focus();
+        message('Choose your new admin password below.');
+      }
+    }, 0);
+  }
   if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
     setTimeout(() => show(session?.user),0);
   }
