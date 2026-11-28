@@ -1,0 +1,159 @@
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm';
+import {database, publishableKey, localDay, localTime, displayTime} from './client.js';
+
+const db = createClient(database, publishableKey);
+const $ = id => document.getElementById(id);
+const message = value => { $('message').textContent = value; };
+const month = new Date(localDay().slice(0,7) + '-01T12:00:00Z');
+const columns = 'id,client_name,contact,email,service,preferred_time,notes,status,starts_at,ends_at';
+let selected = '';
+let loadVersion = 0;
+let rows = [];
+const node = (tag, value) => Object.assign(document.createElement(tag), {textContent:value});
+const control = (label, type, value, options = {}) => {
+  const field = node('label', label + ' ');
+  const input = Object.assign(document.createElement('input'), {type,value,required:true,...options});
+  field.append(input);
+  return [field,input];
+};
+async function manage(args, button) {
+  button.disabled = true;
+  message('');
+  try {
+    const {error} = await db.rpc('studio_manage', args);
+    if (error) throw error;
+    await load();
+    message({block:'Time blocked.',cancel:'Calendar updated.',approve:'Appointment approved.',reschedule:'Appointment rescheduled.'}[args.action]);
+  } catch (error) {
+    message(error.message || 'The calendar could not be updated.');
+  } finally {
+    button.disabled = false;
+  }
+}
+function render() {
+  $('month').textContent = month.toLocaleDateString('en-US',{month:'long',year:'numeric',timeZone:'UTC'});
+  const cal = $('calendar');
+  cal.replaceChildren(...['S','M','T','W','T','F','S'].map(d => node('span',d)));
+  for (let i = 0; i < month.getUTCDay(); i++) cal.append(document.createElement('span'));
+  const day = new Date(month);
+  while (day.getUTCMonth() === month.getUTCMonth()) {
+    const key = day.toISOString().slice(0,10);
+    const button = node('button',day.getUTCDate());
+    const count = rows.filter(row => row.starts_at && localDay(new Date(row.starts_at)) === key
+      && ['pending','approved','blocked'].includes(row.status)).length;
+    if (count) button.append(node('small',count));
+    button.setAttribute('aria-pressed',String(key === selected));
+    button.setAttribute('aria-label',key + ', ' + count + ' active calendar entries');
+    button.onclick = () => { selected = key; $('block').elements.day.value = key; render(); };
+    cal.append(button);
+    day.setUTCDate(day.getUTCDate()+1);
+  }
+  $('list-title').textContent = selected ? 'Calendar for ' + selected : 'Appointment requests and blocks';
+  const list = $('requests');
+  list.replaceChildren();
+  for (const row of rows) {
+    const date = row.starts_at && new Date(row.starts_at);
+    if (selected && (!date || localDay(date) !== selected)) continue;
+    const article = document.createElement('article');
+    article.append(node('h3',row.client_name),node('p',row.status + ' · ' + row.service));
+    const duration = date && Math.round((new Date(row.ends_at) - date) / 60000);
+    article.append(node('p',date
+      ? localDay(date) + ' at ' + displayTime(localTime(date)) + ' Pacific · ' + duration + ' min'
+      : row.preferred_time || 'Time to be assigned'));
+    for (const detail of [row.contact,row.email,row.notes]) if (detail) article.append(node('p',detail));
+    function action(label, action, confirmation) {
+      const button = node('button',label);
+      button.onclick = () => {
+        if (!confirmation || confirm(confirmation)) manage({action,appointment_id:row.id},button);
+      };
+      article.append(button);
+    }
+    if (row.status === 'pending' && date > new Date()) action('Approve','approve');
+    if (['pending','approved','blocked','contacted'].includes(row.status)) {
+      const block = row.status === 'blocked';
+      action(block ? 'Remove block' : 'Cancel appointment','cancel',
+        block ? 'Remove this availability block?' : 'Cancel this appointment and reopen the time?');
+      if (!block) {
+        const editor = document.createElement('details');
+        editor.append(node('summary','Reschedule or change duration'));
+        const form = document.createElement('form');
+        const [dayField,newDay] = control('Date','date',date ? localDay(date) : localDay());
+        const [timeField,newTime] = control('Start, Pacific','time',date ? localTime(date) : '10:00',{step:900});
+        const [durationField,newDuration] = control('Minutes','number',duration || 60,{min:15,max:480});
+        const save = node('button','Save time');
+        form.append(dayField,timeField,durationField,save);
+        form.onsubmit = event => {
+          event.preventDefault();
+          manage({action:'reschedule',appointment_id:row.id,day:newDay.value,
+            start_time:newTime.value,duration:Number(newDuration.value)},save);
+        };
+        editor.append(form);
+        article.append(editor);
+      }
+    }
+    list.append(article);
+  }
+  if (!list.childElementCount) list.append(node('p','No calendar entries.'));
+}
+async function load() {
+  const version = ++loadVersion;
+  const start = new Date(month);
+  start.setUTCDate(0);
+  const end = new Date(month);
+  end.setUTCMonth(end.getUTCMonth()+1);
+  end.setUTCDate(2);
+  const {data,error} = await db.from('lola_requests').select(columns)
+    .or('starts_at.is.null,and(starts_at.gte.' + start.toISOString() + ',starts_at.lt.' + end.toISOString() + ')')
+    .order('starts_at',{ascending:true});
+  if (version !== loadVersion) return;
+  if (error) { message(error.message); return; }
+  const prefix = month.toISOString().slice(0,7);
+  rows = data.filter(row => !row.starts_at || localDay(new Date(row.starts_at)).startsWith(prefix));
+  render();
+}
+async function show(user) {
+  const {data,error} = user ? await db.rpc('studio_is_admin') : {data:false};
+  $('login').hidden = data === true;
+  $('dash').hidden = data !== true;
+  if (data) await load();
+  else {
+    ++loadVersion;
+    rows = [];
+    $('requests').replaceChildren();
+    $('calendar').replaceChildren();
+    if (user) message(error ? 'Could not verify admin access.' : 'This account does not have admin access.');
+  }
+}
+$('form').onsubmit = async event => {
+  event.preventDefault();
+  const {data,error} = await db.auth.signInWithPassword({email:$('email').value,password:$('password').value});
+  $('password').value = '';
+  if (error) message(error.message);
+  else { message(''); await show(data.user); }
+};
+$('magic').onclick = async () => {
+  if (!$('email').reportValidity() || !$('email').value) return message('Enter your email address.');
+  const {error} = await db.auth.signInWithOtp({email:$('email').value,
+    options:{shouldCreateUser:false,emailRedirectTo:location.origin + '/admin.html'}});
+  message(error?.message || 'Check your email for a sign-in link.');
+};
+$('logout').onclick = async () => {
+  const {error} = await db.auth.signOut();
+  message(error?.message || 'Signed out.');
+  if (!error) await show(null);
+};
+$('refresh').onclick = load;
+$('back').onclick = () => { month.setUTCMonth(month.getUTCMonth()-1); selected=''; load(); };
+$('forward').onclick = () => { month.setUTCMonth(month.getUTCMonth()+1); selected=''; load(); };
+$('all-days').onclick = () => { selected=''; render(); };
+$('block').elements.day.value = localDay();
+$('block').onsubmit = event => {
+  event.preventDefault();
+  const fields = new FormData(event.currentTarget);
+  manage({action:'block',day:fields.get('day'),start_time:fields.get('time'),duration:Number(fields.get('duration'))},event.submitter);
+};
+db.auth.onAuthStateChange((event,session) => {
+  if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
+    setTimeout(() => show(session?.user),0);
+  }
+});
