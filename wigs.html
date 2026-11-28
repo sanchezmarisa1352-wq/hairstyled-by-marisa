@@ -1,7 +1,14 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Shop Wigs | Hairstyled by Marisa</title><link rel="stylesheet" href="/shop.css"><style>
 .wig-intro{padding:clamp(22px,6vw,48px);background:radial-gradient(ellipse at 95% 5%,#743b58,#251829 75%)}
-.wig-inventory{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:16px}
+.wig-inventory{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,160px),min(48%,240px)));gap:16px}
 .wig-card{overflow:hidden;padding:0}
+.wig-card button.wig-open{display:block;margin:0;padding:0;border:0;border-radius:0;width:100%;background:none;text-align:left;color:inherit}
+.wig-dialog{width:min(92vw,480px);max-height:90dvh;padding:16px;background:#241924;color:#fff1f7;border:1px solid #89516e;border-radius:17px}
+.wig-dialog::backdrop{background:#140f15cc}
+.wig-dialog img{display:block;width:100%;max-height:50dvh;object-fit:contain;margin:12px 0}
+.wig-dialog .dialog-close{display:flex;justify-content:flex-end}
+.wig-details .open-label{display:block;margin-top:8px;color:#f5a7ce;font-size:13px}
+.wig-details .wig-name{display:block;font:400 clamp(19px,4vw,26px) Georgia,serif}
 .wig-card .display{aspect-ratio:1;background:radial-gradient(ellipse at center,#651943,#231526 78%)}
 .wig-card .display img{display:block;width:100%;height:100%;object-fit:contain}
 .wig-details{padding:16px}
@@ -11,17 +18,24 @@
 </style></head><body><main><header><a href="/">Hairstyled by Marisa</a><nav aria-label="Shop"><a href="/wigs.html">Wigs</a><a href="/custom-extensions.html">Custom Extensions</a></nav></header><section class="panel wig-intro"><h1>Shop <em>Wigs</em></h1><div class="links"><a class="cta" href="/custom-extensions.html?interest=wig#inquiry">Request a wig quote</a></div></section>
 <section class="wig-inventory" aria-label="Wig inventory">
   <article class="panel wig-card" aria-labelledby="pink-leopard">
-    <div class="display" id="pink-leopard-display"><img src="/pink-leopard-wig.png" alt="Pink leopard wig on a gold stand and glowing pink platform"></div>
-    <div class="wig-details">
-      <h2 id="pink-leopard">Pink Leopard</h2>
-      <p class="wig-specs"><span>30-inch wig · Human hair</span><strong>$300</strong></p>
-      <button class="secondary" id="motion" type="button" aria-controls="pink-leopard-display">Pause display</button>
-    </div>
+    <button class="wig-open" id="open-leopard" type="button" aria-haspopup="dialog" aria-labelledby="pink-leopard leopard-action">
+      <span class="display" id="pink-leopard-display" style="display:block"><img src="/pink-leopard-wig.png" alt="Pink leopard wig on a gold stand and glowing pink platform"></span>
+      <span class="wig-details" style="display:block">
+        <span class="wig-name" id="pink-leopard">Pink Leopard</span>
+        <span class="wig-specs"><span>30″ · Human hair</span><strong>$300</strong></span>
+        <span class="open-label" id="leopard-action">View details ↗</span>
+      </span>
+    </button>
   </article>
-</section><script>
-const motion = document.getElementById('motion');
-motion.onclick = () => {
-  const paused = document.getElementById('pink-leopard-display').classList.toggle('paused');
-  motion.textContent = paused ? 'Play display' : 'Pause display';
-};
+</section>
+<dialog class="wig-dialog" id="leopard-details" aria-labelledby="leopard-title">
+  <form method="dialog" class="dialog-close"><button type="submit" class="secondary" autofocus>Close</button></form>
+  <img src="/pink-leopard-wig.png" alt="Full view of the pink leopard wig on its glowing display">
+  <h2 id="leopard-title">Pink Leopard</h2>
+  <p>Long pink hair with bold leopard spots.</p>
+  <dl><dt>Length</dt><dd>30 inches</dd><dt>Hair</dt><dd>Human hair</dd><dt>Price</dt><dd>$300</dd></dl>
+  <a class="cta" href="/custom-extensions.html?interest=wig&amp;design=Pink%20Leopard#inquiry">Inquire about Pink Leopard</a>
+</dialog><script>
+const dialog = document.getElementById('leopard-details');
+document.getElementById('open-leopard').onclick = () => dialog.showModal();
 </script></main></body></html>
