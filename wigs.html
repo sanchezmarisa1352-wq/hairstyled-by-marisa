@@ -1,0 +1,7 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Shop Wigs | Hairstyled by Marisa</title><link rel="stylesheet" href="/shop.css"></head><body><main><header><a href="/">Hairstyled by Marisa</a><nav aria-label="Shop"><a href="/wigs.html">Wigs</a><a href="/custom-extensions.html">Custom Extensions</a></nav></header><section class="panel feature"><div class="copy"><h1>Shop <em>Wigs</em></h1><h2>Pink Leopard</h2><p>Pink lengths and bold leopard spots on a glowing display. Custom wigs start at <strong>$300</strong>.</p><div class="links"><a class="cta" href="/custom-extensions.html?interest=wig#inquiry">Request a wig quote</a><button class="secondary" id="motion" type="button">Pause display</button></div></div><div class="display"><img src="/pink-leopard-wig.png" alt="Pink leopard wig on a gold stand and glowing pink platform"></div></section><script>
+const motion = document.getElementById('motion');
+motion.onclick = () => {
+  const paused = document.querySelector('.display').classList.toggle('paused');
+  motion.textContent = paused ? 'Play display' : 'Pause display';
+};
+</script></main></body></html>

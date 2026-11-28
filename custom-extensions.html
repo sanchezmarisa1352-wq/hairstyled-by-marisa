@@ -1,0 +1,49 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Custom Hair Extensions | Hairstyled by Marisa</title><link rel="stylesheet" href="/shop.css"></head><body><main><header><a href="/">Hairstyled by Marisa</a><nav aria-label="Shop"><a href="/wigs.html">Wigs</a><a href="/custom-extensions.html">Custom Extensions</a></nav></header><section class="panel feature"><div class="copy"><h1>Custom <em>Extensions</em></h1><p>Hand-colored pieces made for your look. Pick your length and piece count, then send Marisa a photo of your hair or your inspiration for a quote.</p><div class="links"><a class="cta" href="#inquiry">Build your inquiry</a></div></div><img src="/rainbow-leopard-extensions.webp" alt="Marisa’s hand-colored rainbow leopard extension"></section>
+<section class="panel" id="inquiry"><h2>Request a custom extensions quote</h2><form id="quote">
+<fieldset><legend>Length</legend><div class="choices"><label><input type="radio" name="length" value="18" required><span>18″</span></label><label><input type="radio" name="length" value="22" required><span>22″</span></label><label><input type="radio" name="length" value="24" required><span>24″</span></label><label><input type="radio" name="length" value="26" required><span>26″</span></label><label><input type="radio" name="length" value="28" required><span>28″</span></label></div></fieldset>
+<fieldset id="counts"><legend>How many pieces?</legend><div class="choices"><label><input type="radio" name="pieces" value="1" required><span>1 piece</span></label><label><input type="radio" name="pieces" value="2" required><span>2 pieces</span></label><label><input type="radio" name="pieces" value="3" required><span>3 pieces</span></label><label><input type="radio" name="pieces" value="4" required><span>4 pieces</span></label><label><input type="radio" name="pieces" value="5" required><span>5 pieces</span></label><label><input type="radio" name="pieces" value="6" required><span>6 pieces</span></label><label><input type="radio" name="pieces" value="7" required><span>7 pieces</span></label><label><input type="radio" name="pieces" value="8" required><span>8 pieces · Full head</span></label></div></fieldset>
+<div class="fields"><label>Your name <input name="name" autocomplete="name" maxlength="90" required></label><label>Email <input type="email" name="email" autocomplete="email" maxlength="150" required></label></div>
+<label>Tell me about your look <textarea name="design" maxlength="550" rows="4" required placeholder="Your current hair color, the colors or pattern you want, and when you need it"></textarea></label>
+<label>Current hair or inspiration photo <input id="photo" type="file" accept="image/*" aria-describedby="photo-help" required></label>
+<img id="photo-preview" alt="Your selected reference photo" hidden><p id="photo-help">Your email app opens with your inquiry filled in. Attach the selected photo before sending.</p>
+<button>Open email inquiry</button><p id="status" role="status"></p></form></section><script>
+const photo = document.getElementById('photo');
+const preview = document.getElementById('photo-preview');
+const wig = new URLSearchParams(location.search).get('interest') === 'wig';
+let previewUrl;
+if (wig) {
+  document.querySelector('h1').textContent = 'Custom Wigs';
+  document.querySelector('.copy p').textContent = 'Tell Marisa the length, color and style you want for your custom wig.';
+  document.querySelector('.feature img').src = '/pink-leopard-wig.png';
+  document.querySelector('.feature img').alt = 'Pink leopard wig on a glowing pink platform';
+  document.querySelector('#inquiry h2').textContent = 'Request a custom wig quote';
+  const counts = document.getElementById('counts');
+  counts.hidden = true;
+  counts.disabled = true;
+}
+photo.onchange = () => {
+  if (previewUrl) URL.revokeObjectURL(previewUrl);
+  const file = photo.files[0];
+  photo.setCustomValidity(file && file.type && !file.type.startsWith('image/') ? 'Choose an image file.' : '');
+  preview.hidden = !file || !photo.validity.valid;
+  if (!preview.hidden) {
+    previewUrl = URL.createObjectURL(file);
+    preview.src = previewUrl;
+  }
+};
+document.getElementById('quote').onsubmit = event => {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget);
+  const pieces = data.get('pieces');
+  const file = photo.files[0];
+  const lines = [
+    'Name: ' + data.get('name'), 'Email: ' + data.get('email'),
+    'Length: ' + data.get('length') + ' inches',
+    pieces && 'Pieces: ' + pieces + (pieces === '8' ? ' (full-head set)' : ''),
+    'Design: ' + data.get('design'), 'Photo to attach: ' + file.name
+  ];
+  const subject = wig ? 'Custom wig inquiry' : 'Custom extensions inquiry';
+  document.getElementById('status').textContent = 'Attach ' + file.name + ' in your email app and tap Send.';
+  location.href = 'mailto:sanchezmarisa1352@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.filter(Boolean).join('\r\n'));
+};
+</script></main></body></html>
