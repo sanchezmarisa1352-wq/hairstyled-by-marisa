@@ -95,6 +95,18 @@ details[open] > summary { margin-bottom: 10px; }
 #admin-lola-log:not(:empty) { margin-top: 14px; }
 #admin-lola-log p { background: #170f18; padding: 10px; border-radius: 9px; white-space: pre-wrap; overflow-wrap: anywhere; }
 #message:not(:empty) { position: fixed; bottom: max(14px,env(safe-area-inset-bottom)); right: 16px; left: 16px; z-index: 2; width: fit-content; max-width: min(560px,calc(100% - 32px)); margin: auto; background: #38243a; border: 1px solid var(--pink); border-radius: 11px; padding: 11px 16px; }
+.business { margin-bottom: 16px; }
+.business form,.business-totals { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+.business-totals { margin: 14px 0; }
+.business-totals article strong { display: block; font-size: clamp(17px,3vw,26px); color: var(--pink); }
+.business details,.business-list { margin-top: 14px; }
+.business-list { display: grid; gap: 9px; }
+.business-list article button { margin-bottom: 0; }
+.business p[role] { margin-top: 9px; color: var(--muted); }
+@media (max-width: 560px) {
+  .business form,.business-totals { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .business-totals article:last-child { grid-column: 1 / -1; }
+}
 @media (max-width: 760px) {
   .grid { grid-template-columns: minmax(0,1fr); }
   .stack { display: contents; }
@@ -131,10 +143,41 @@ details[open] > summary { margin-bottom: 10px; }
     <nav class="nav" aria-label="Studio dashboard">
       <a href="#schedule">Calendar</a>
       <a href="#appointments">Requests</a>
+      <a href="#earnings">Earnings</a>
+      <a href="#rebooking">Rebooking</a>
       <a class="primary" href="#lola">Ask Lola</a>
       <a href="#clients">Clients</a>
       <a href="#account">Account</a>
     </nav>
+    <section id="earnings" class="panel business" aria-labelledby="earnings-title">
+      <div class="heading"><h2 id="earnings-title">Earnings</h2><p>35% on services, 10% on hair sales, plus the tips you keep. Totals are before taxes and deductions.</p></div>
+      <label>Period <select id="earnings-period"><option value="week">This week</option><option value="month">This month</option><option value="year">This year</option></select></label>
+      <div id="earnings-totals" class="business-totals" aria-live="polite"></div>
+      <details id="earnings-editor"><summary>Log a completed visit</summary>
+        <form id="earnings-form">
+          <label>Visit date <input type="date" name="visit_date" required></label>
+          <label>Client name <input name="client_name" maxlength="120" required></label>
+          <label>Client email or phone <input name="contact" maxlength="254" placeholder="Matches future bookings"></label>
+          <label>Eligible service sales ($) <input type="number" name="sales" min="0" max="100000" step=".01" inputmode="decimal" required></label>
+          <label>Hair sales ($) <input type="number" name="hair" min="0" max="100000" step=".01" value="0" inputmode="decimal" required></label>
+          <label>Tips you kept ($) <input type="number" name="tips" min="0" max="100000" step=".01" value="0" inputmode="decimal" required></label>
+          <label>Next visit booked <input type="date" name="next_visit"></label>
+          <label>Follow-up due <input type="date" name="follow_up"></label>
+          <button id="save-earnings">Save visit</button>
+          <button type="reset">Clear form</button>
+        </form>
+      </details>
+      <p id="earnings-status" role="status"></p>
+      <div id="earnings-history" class="business-list"></div>
+    </section>
+    <section id="rebooking" class="panel business" aria-labelledby="rebooking-title">
+      <div class="heading"><h2 id="rebooking-title">Rebooking &amp; retention</h2><p>Based on completed visits you log. Enter an email or phone to match approved studio appointments. For bookings made elsewhere, enter the next visit date. Follow-up defaults to six weeks after a visit.</p></div>
+      <p id="retention-summary" role="status"></p>
+      <label>Show clients <select id="retention-filter">
+        <option value="due">Follow-up due</option><option value="open">No next visit</option><option value="booked">Rebooked</option><option value="all">All logged clients</option>
+      </select></label>
+      <div id="retention-list" class="business-list"></div>
+    </section>
     <div class="grid">
       <div class="stack">
         <section id="schedule" class="panel" aria-labelledby="calendar-title">

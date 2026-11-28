@@ -1,3 +1,4 @@
+import {setupBusiness} from './business.js';
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm';
 import {database, publishableKey, localDay, localTime, displayTime} from './client.js';
 
@@ -5,6 +6,7 @@ const linkError = new URLSearchParams(location.hash.slice(1)).get('error_code');
 const db = createClient(database, publishableKey);
 const $ = id => document.getElementById(id);
 const message = value => { $('message').textContent = value; };
+const business = setupBusiness(db);
 const month = new Date(localDay().slice(0,7) + '-01T12:00:00Z');
 const columns = 'id,client_name,contact,email,service,preferred_time,notes,status,starts_at,ends_at';
 let selected = '';
@@ -23,7 +25,7 @@ async function manage(args, button) {
   try {
     const {error} = await db.rpc('studio_manage', args);
     if (error) throw error;
-    await load();
+    await Promise.all([load(), business.refresh()]);
     message({block:'Time blocked.',cancel:'Calendar updated.',approve:'Appointment approved.',reschedule:'Appointment rescheduled.'}[args.action]);
   } catch (error) {
     message(error.message || 'The calendar could not be updated.');
@@ -116,11 +118,12 @@ async function show(user) {
   const {data,error} = user ? await db.rpc('studio_is_admin') : {data:false};
   $('login').hidden = data === true;
   $('dash').hidden = data !== true;
-  if (data) await load();
+  if (data) await Promise.all([load(), business.refresh()]);
   else {
     ++loadVersion;
     rows = [];
     clearPrivateTools();
+    business.clear();
     $('requests').replaceChildren();
     $('calendar').replaceChildren();
     if (user) message(error ? 'Could not verify admin access.' : 'This account does not have admin access.');
@@ -214,7 +217,7 @@ $('logout').onclick = async () => {
     await show(null);
   }
 };
-$('refresh').onclick = load;
+$('refresh').onclick = () => Promise.all([load(), business.refresh()]);
 $('back').onclick = () => { month.setUTCMonth(month.getUTCMonth()-1); selected=''; load(); };
 $('forward').onclick = () => { month.setUTCMonth(month.getUTCMonth()+1); selected=''; load(); };
 $('all-days').onclick = () => { selected=''; render(); };
