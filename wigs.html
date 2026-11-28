@@ -1,7 +1,27 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Shop Wigs | Hairstyled by Marisa</title><link rel="stylesheet" href="/shop.css"></head><body><main><header><a href="/">Hairstyled by Marisa</a><nav aria-label="Shop"><a href="/wigs.html">Wigs</a><a href="/custom-extensions.html">Custom Extensions</a></nav></header><section class="panel feature"><div class="copy"><h1>Shop <em>Wigs</em></h1><h2>Pink Leopard</h2><p>Pink lengths and bold leopard spots on a glowing display. Custom wigs start at <strong>$300</strong>.</p><div class="links"><a class="cta" href="/custom-extensions.html?interest=wig#inquiry">Request a wig quote</a><button class="secondary" id="motion" type="button">Pause display</button></div></div><div class="display"><img src="/pink-leopard-wig.png" alt="Pink leopard wig on a gold stand and glowing pink platform"></div></section><script>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Shop Wigs | Hairstyled by Marisa</title><link rel="stylesheet" href="/shop.css"><style>
+.wig-intro{padding:clamp(22px,6vw,48px);background:radial-gradient(ellipse at 95% 5%,#743b58,#251829 75%)}
+.wig-inventory{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:16px}
+.wig-card{overflow:hidden;padding:0}
+.wig-card .display{aspect-ratio:1;background:radial-gradient(ellipse at center,#651943,#231526 78%)}
+.wig-card .display img{display:block;width:100%;height:100%;object-fit:contain}
+.wig-details{padding:16px}
+.wig-details h2{font-size:clamp(25px,5vw,33px);margin:0}
+.wig-details .wig-specs{display:flex;align-items:baseline;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;margin-top:8px}
+.wig-specs strong{color:#f5a7ce;font-size:20px}
+</style></head><body><main><header><a href="/">Hairstyled by Marisa</a><nav aria-label="Shop"><a href="/wigs.html">Wigs</a><a href="/custom-extensions.html">Custom Extensions</a></nav></header><section class="panel wig-intro"><h1>Shop <em>Wigs</em></h1><div class="links"><a class="cta" href="/custom-extensions.html?interest=wig#inquiry">Request a wig quote</a></div></section>
+<section class="wig-inventory" aria-label="Wig inventory">
+  <article class="panel wig-card" aria-labelledby="pink-leopard">
+    <div class="display" id="pink-leopard-display"><img src="/pink-leopard-wig.png" alt="Pink leopard wig on a gold stand and glowing pink platform"></div>
+    <div class="wig-details">
+      <h2 id="pink-leopard">Pink Leopard</h2>
+      <p class="wig-specs"><span>30-inch wig · Human hair</span><strong>$300</strong></p>
+      <button class="secondary" id="motion" type="button" aria-controls="pink-leopard-display">Pause display</button>
+    </div>
+  </article>
+</section><script>
 const motion = document.getElementById('motion');
 motion.onclick = () => {
-  const paused = document.querySelector('.display').classList.toggle('paused');
+  const paused = document.getElementById('pink-leopard-display').classList.toggle('paused');
   motion.textContent = paused ? 'Play display' : 'Pause display';
 };
 </script></main></body></html>
